@@ -1,6 +1,12 @@
 import { useState } from 'react'
 import './App.css'
 
+// Helper function to get asset path with base URL
+const getAssetPath = (path) => {
+  if (path.startsWith('http')) return path;
+  return import.meta.env.BASE_URL + path.replace(/^\//, '');
+}
+
 // Project data extracted from the portfolio
 const projects = [
   {
@@ -20,7 +26,7 @@ const projects = [
     tags: ["Native", "Team Lead", "Flutter"],
     playStore: "https://play.google.com/store/apps/details?id=to.being.now",
     appStore: "https://apps.apple.com/in/app/being-my-mental-health-friend/id1551320884",
-    banner: "/being_dash.png"
+    banner: "being_dash.png"
   },
   {
     id: 3,
@@ -30,7 +36,7 @@ const projects = [
     website: "https://projectxco.org/divide",
     playStore: "https://play.google.com/store/apps/details?id=com.projectx.divide",
     appStore: "https://apps.apple.com/us/app/divide-bill-splitting-app/id6739696854",
-    banner: "/divide.png"
+    banner: "divide.png"
   },
   {
     id: 4,
@@ -40,7 +46,7 @@ const projects = [
     website: "",
     playStore: "https://play.google.com/store/apps/details?id=com.geniopay.borderless",
     appStore: "https://testflight.apple.com/join/LQ9jECOl",
-    banner: "/geniopay.png"
+    banner: "geniopay.png"
   },
   {
     id: 5,
@@ -50,7 +56,7 @@ const projects = [
     website: "",
     playStore: "https://play.google.com/store/apps/details?id=com.kuddle.app&hl=en_IN&gl=US",
     appStore: "https://apps.apple.com/in/app/kuddle-pet/id1602279487",
-    banner: "/kuddle.png"
+    banner: "kuddle.png"
   },
   {
     id: 6,
@@ -60,7 +66,7 @@ const projects = [
     website: "",
     playStore: "https://play.google.com/store/apps/details?id=com.astermims.lifeline",
     appStore: "",
-    banner: "/lifeline_bg.png"
+    banner: "lifeline_bg.png"
   },
   {
     id: 7,
@@ -70,7 +76,7 @@ const projects = [
     website: "",
     playStore: "https://play.google.com/store/apps/details?id=com.xdrop.release&hl=en_IN&gl=US",
     appStore: "https://apps.apple.com/us/app/xdrop-fastest-file-transfer/id1546033106",
-    banner: "/xdrop.png"
+    banner: "xdrop.png"
   },
   {
     id: 8,
@@ -80,7 +86,7 @@ const projects = [
     website: "",
     playStore: "https://play.google.com/store/apps/details?id=com.pump.application",
     appStore: "",
-    banner: "/pump.png"
+    banner: "pump.png"
   },
   {
     id: 9,
@@ -90,7 +96,7 @@ const projects = [
     website: "",
     playStore: "https://play.google.com/store/apps/details?id=com.appsbyt.widgetscreator",
     appStore: "https://apps.apple.com/in/app/widgets-for-creators/id6499074364",
-    banner: "/widgets_for_creator.png"
+    banner: "widgets_for_creator.png"
   },
   {
     id: 10,
@@ -100,7 +106,7 @@ const projects = [
     website: "https://matcharesume.com",
     playStore: "",
     appStore: "",
-    banner: "/matcha.png"
+    banner: "matcha.png"
   }
 ];
 
@@ -127,7 +133,7 @@ function App() {
             <a className="text-slate-400 hover:text-white text-sm transition-colors" href="#skills">[Skills]</a>
             <a className="text-slate-400 hover:text-white text-sm transition-colors" href="#contact">[Contact]</a>
           </nav>
-          <a href="/Vinayak Sankeet Lead Mobile Developer Resume.pdf" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center border border-white px-4 py-1.5 bg-white text-[#0a0a0a] text-xs font-bold uppercase tracking-widest hover:bg-transparent hover:text-white transition-all">
+          <a href={getAssetPath("Vinayak Sankeet Lead Mobile Developer Resume.pdf")} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center border border-white px-4 py-1.5 bg-white text-[#0a0a0a] text-xs font-bold uppercase tracking-widest hover:bg-transparent hover:text-white transition-all">
             Resume.sh
           </a>
         </div>
@@ -139,7 +145,7 @@ function App() {
           <div className="flex flex-col gap-12 lg:flex-row-reverse lg:items-center">
             <div className="w-full aspect-square md:aspect-video lg:aspect-square lg:w-1/2 bg-slate-900 border border-white/10 overflow-hidden">
               <img
-                src="/hero_image.png"
+                src={getAssetPath("hero_image.png")}
                 alt="Developer Terminal"
                 className="w-full h-full object-cover"
               />
@@ -241,7 +247,7 @@ function App() {
                   <img
                     className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
                     alt={project.name}
-                    src={project.banner}
+                    src={getAssetPath(project.banner)}
                   />
                 </div>
                 <div className="flex flex-col gap-2 flex-1">
