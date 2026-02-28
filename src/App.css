@@ -1,0 +1,6 @@
+/* Additional custom styles if needed */
+
+/* Smooth scroll behavior for anchor links */
+html {
+  scroll-behavior: smooth;
+}
