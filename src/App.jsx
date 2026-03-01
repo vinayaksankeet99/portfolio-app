@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 // Helper function to get asset path with base URL
@@ -113,6 +113,110 @@ const projects = [
 function App() {
   const [selectedFilter, setSelectedFilter] = useState('All_Files')
 
+  // Animation states for hero section
+  const [systemInitText, setSystemInitText] = useState('')
+  const [showSystemInitCursor, setShowSystemInitCursor] = useState(true)
+  const [helloText, setHelloText] = useState('')
+  const [showHelloCursor, setShowHelloCursor] = useState(false)
+  const [descText, setDescText] = useState('')
+  const [showDescCursor, setShowDescCursor] = useState(false)
+  const [showButtons, setShowButtons] = useState(false)
+  const [imageReveal, setImageReveal] = useState(0)
+  const [heroAnimationComplete, setHeroAnimationComplete] = useState(false)
+
+  const systemInitFull = 'System.initialize()'
+  const helloFull = 'HELLO.'
+  const descFull = "I'm Vinayak Sankeet, a Lead Mobile Developer crafting high-performance, minimalist mobile experiences with mathematical precision and clean system architecture."
+
+  // Terminal typing animation effect
+  useEffect(() => {
+    let currentTimeout
+    let imageInterval
+
+    // Total animation time: 2000ms (2 seconds)
+    // Image will complete in 2000ms
+    // Text animations will also complete in 2000ms
+
+    // Start image reveal animation immediately - completes in 2000ms
+    imageInterval = setInterval(() => {
+      setImageReveal(prev => {
+        if (prev >= 100) {
+          clearInterval(imageInterval)
+          return 100
+        }
+        return prev + 2 // 50 steps * 40ms = 2000ms
+      })
+    }, 40)
+
+    // Type System.initialize() - 19 chars * 20ms = 380ms
+    let systemInitIndex = 0
+    const typeSystemInit = () => {
+      if (systemInitIndex < systemInitFull.length) {
+        setSystemInitText(systemInitFull.slice(0, systemInitIndex + 1))
+        systemInitIndex++
+        currentTimeout = setTimeout(typeSystemInit, 20)
+      } else {
+        // Finished typing system init, wait 100ms
+        currentTimeout = setTimeout(() => {
+          setShowSystemInitCursor(false)
+          setShowHelloCursor(true)
+          typeHello()
+        }, 100)
+      }
+    }
+
+    // Type HELLO. - 6 chars * 80ms = 480ms
+    let helloIndex = 0
+    const typeHello = () => {
+      if (helloIndex < helloFull.length) {
+        setHelloText(helloFull.slice(0, helloIndex + 1))
+        helloIndex++
+        currentTimeout = setTimeout(typeHello, 80)
+      } else {
+        // Finished typing hello, wait 100ms
+        currentTimeout = setTimeout(() => {
+          setShowHelloCursor(false)
+          setShowDescCursor(true)
+          typeDesc()
+        }, 100)
+      }
+    }
+
+    // Type description - 156 chars * 6ms = 936ms
+    let descIndex = 0
+    const typeDesc = () => {
+      if (descIndex < descFull.length) {
+        setDescText(descFull.slice(0, descIndex + 1))
+        descIndex++
+        currentTimeout = setTimeout(typeDesc, 6)
+      } else {
+        // Finished typing description, hide cursor and show buttons
+        // Total so far: 380 + 100 + 480 + 100 + 936 = 1996ms
+        currentTimeout = setTimeout(() => {
+          setShowDescCursor(false)
+          setShowButtons(true)
+          // Mark hero animation as complete after buttons appear
+          currentTimeout = setTimeout(() => {
+            setHeroAnimationComplete(true)
+          }, 200)
+        }, 4) // Small delay to reach exactly 2000ms
+      }
+    }
+
+    // Start the animation sequence
+    typeSystemInit()
+
+    // Cleanup function
+    return () => {
+      if (currentTimeout) {
+        clearTimeout(currentTimeout)
+      }
+      if (imageInterval) {
+        clearInterval(imageInterval)
+      }
+    }
+  }, [])
+
   // Filter projects based on selected filter
   const filteredProjects = selectedFilter === 'All_Files'
     ? projects
@@ -143,24 +247,52 @@ function App() {
         {/* Hero Section */}
         <div className="mb-32">
           <div className="flex flex-col gap-12 lg:flex-row-reverse lg:items-center">
-            <div className="w-full aspect-square md:aspect-video lg:aspect-square lg:w-1/2 bg-slate-900 border border-white/10 overflow-hidden">
+            <div className="w-full aspect-square md:aspect-video lg:aspect-square lg:w-1/2 bg-slate-900 border border-white/10 overflow-hidden relative">
               <img
                 src={getAssetPath("hero_image.png")}
                 alt="Developer Terminal"
                 className="w-full h-full object-cover"
               />
+              {/* Scanline reveal effect */}
+              <div
+                className="absolute inset-0 bg-slate-900 transition-all duration-100"
+                style={{
+                  clipPath: `inset(${imageReveal}% 0 0 0)`
+                }}
+              />
+              {/* Active scanline */}
+              {imageReveal < 100 && (
+                <div
+                  className="absolute left-0 right-0 h-1 bg-white/30 shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+                  style={{
+                    top: `${imageReveal}%`
+                  }}
+                />
+              )}
             </div>
             <div className="flex flex-col gap-8 flex-1">
               <div className="flex flex-col gap-4">
-                <span className="terminal-text text-white/60 text-sm uppercase tracking-[0.2em]">System.initialize()</span>
-                <h1 className="text-white text-7xl md:text-8xl lg:text-9xl font-black leading-none tracking-tighter">
-                  HELLO.
+                <span className="terminal-text text-white/60 text-sm uppercase tracking-[0.2em] min-h-[20px]">
+                  {systemInitText}
+                  {showSystemInitCursor && <span className="inline-block w-2 h-3 bg-white/60 ml-1 animate-pulse"></span>}
+                </span>
+                <h1 className="text-white text-7xl md:text-8xl lg:text-9xl font-black leading-none tracking-tighter min-h-[80px] md:min-h-[96px] lg:min-h-[112px]">
+                  {helloText}
+                  {showHelloCursor && <span className="inline-block w-4 h-20 md:w-6 md:h-24 lg:w-8 lg:h-28 bg-white ml-2 animate-pulse"></span>}
                 </h1>
-                <p className="text-slate-400 text-lg md:text-xl font-normal leading-relaxed max-w-xl">
-                  I'm <span className="text-white font-bold">Vinayak Sankeet</span>, a Lead Mobile Developer crafting high-performance, minimalist mobile experiences with mathematical precision and clean system architecture.
-                </p>
+                <div className="terminal-text text-slate-400 text-lg md:text-xl font-normal leading-relaxed max-w-xl min-h-[120px]">
+                  {descText.split('Vinayak Sankeet').map((part, index) => (
+                    <span key={index}>
+                      {part}
+                      {index === 0 && descText.includes('Vinayak Sankeet') && (
+                        <span className="text-white font-bold">Vinayak Sankeet</span>
+                      )}
+                    </span>
+                  ))}
+                  {showDescCursor && <span className="inline-block w-2 h-5 bg-slate-400 ml-1 animate-pulse"></span>}
+                </div>
               </div>
-              <div className="flex flex-wrap gap-4">
+              <div className={`flex flex-wrap gap-4 transition-all duration-500 ${showButtons ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                 <button className="flex items-center justify-center border-2 border-white bg-white text-[#0a0a0a] px-8 py-3 text-sm font-black uppercase tracking-widest hover:bg-transparent hover:text-white transition-all">
                   View_Projects
                 </button>
@@ -173,7 +305,7 @@ function App() {
         </div>
 
         {/* Experience Section */}
-        <div id="experience" className="mb-32 scroll-mt-24">
+        <div id="experience" className={`mb-32 scroll-mt-24 transition-all duration-1000 ${heroAnimationComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="flex items-center gap-4 mb-10">
             <h2 className="terminal-text text-white text-xl font-bold uppercase tracking-widest">./Experience</h2>
             <div className="h-[1px] flex-1 bg-white/10"></div>
@@ -182,23 +314,23 @@ function App() {
             <div className="group border border-white/10 bg-white/5 p-8 hover:bg-white hover:text-[#0a0a0a] transition-all duration-300">
               <span className="material-symbols-outlined mb-6 scale-150 block">developer_board</span>
               <h3 className="terminal-text text-lg font-bold mb-3 uppercase">Architecture</h3>
-              <p className="text-sm opacity-70 leading-relaxed">Designing modular, scalable frameworks for iOS and Android that stand the test of time and scale.</p>
+              <p className="terminal-text text-sm opacity-70 leading-relaxed">Designing modular, scalable frameworks for iOS and Android that stand the test of time and scale.</p>
             </div>
             <div className="group border border-white/10 bg-white/5 p-8 hover:bg-white hover:text-[#0a0a0a] transition-all duration-300">
               <span className="material-symbols-outlined mb-6 scale-150 block">groups</span>
               <h3 className="terminal-text text-lg font-bold mb-3 uppercase">Leadership</h3>
-              <p className="text-sm opacity-70 leading-relaxed">Guiding cross-functional engineering teams through complex sprints with a focus on code quality.</p>
+              <p className="terminal-text text-sm opacity-70 leading-relaxed">Guiding cross-functional engineering teams through complex sprints with a focus on code quality.</p>
             </div>
             <div className="group border border-white/10 bg-white/5 p-8 hover:bg-white hover:text-[#0a0a0a] transition-all duration-300">
               <span className="material-symbols-outlined mb-6 scale-150 block">speed</span>
               <h3 className="terminal-text text-lg font-bold mb-3 uppercase">Performance</h3>
-              <p className="text-sm opacity-70 leading-relaxed">Hardcore optimization for fluid 120Hz interfaces and zero-latency data synchronization.</p>
+              <p className="terminal-text text-sm opacity-70 leading-relaxed">Hardcore optimization for fluid 120Hz interfaces and zero-latency data synchronization.</p>
             </div>
           </div>
         </div>
 
         {/* Projects Section */}
-        <div id="projects" className="mb-32 scroll-mt-24">
+        <div id="projects" className={`mb-32 scroll-mt-24 transition-all duration-1000 delay-200 ${heroAnimationComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           {/* Breadcrumbs / Status Bar */}
           <div className="mb-12 flex flex-col gap-2">
             <div className="flex items-center gap-2 text-white/40 text-xs terminal-text">
@@ -252,7 +384,7 @@ function App() {
                 </div>
                 <div className="flex flex-col gap-2 flex-1">
                   <h3 className="text-xl font-bold tracking-tight terminal-text">{project.name}</h3>
-                  <p className="text-sm text-white/60 leading-relaxed line-clamp-3">{project.description}</p>
+                  <p className="terminal-text text-sm text-white/60 leading-relaxed line-clamp-3">{project.description}</p>
                   <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap gap-2">
                     {project.tags.map((tag, i) => (
                       <span
@@ -316,12 +448,12 @@ function App() {
               <div className="w-2 h-2 bg-green-500/50"></div>
               <span className="text-[10px] text-white/40 ml-2 uppercase tracking-widest">system_logs</span>
             </div>
-            <div className="text-xs space-y-1">
-              <p className="text-white/40"><span className="text-green-500/60">[OK]</span> UI_RENDER_COMPLETED: {filteredProjects.length} projects loaded</p>
-              <p className="text-white/40"><span className="text-green-500/60">[OK]</span> ASSETS_FETCHED: Grayscale filters applied</p>
-              <p className="text-white/40"><span className="text-blue-500/60">[INFO]</span> SYSTEM_READY: Waiting for user input...</p>
+            <div className="terminal-text text-xs space-y-1">
+              <p className="terminal-text text-white/40"><span className="text-green-500/60">[OK]</span> UI_RENDER_COMPLETED: {filteredProjects.length} projects loaded</p>
+              <p className="terminal-text text-white/40"><span className="text-green-500/60">[OK]</span> ASSETS_FETCHED: Grayscale filters applied</p>
+              <p className="terminal-text text-white/40"><span className="text-blue-500/60">[INFO]</span> SYSTEM_READY: Waiting for user input...</p>
               <div className="flex items-center gap-2 mt-4">
-                <span className="text-white">$</span>
+                <span className="terminal-text text-white">$</span>
                 <span className="w-2 h-4 bg-white animate-pulse"></span>
               </div>
             </div>
@@ -329,13 +461,13 @@ function App() {
         </div>
 
         {/* Technical Kernel / Skills */}
-        <div id="skills" className="mb-32 scroll-mt-24">
+        <div id="skills" className={`mb-32 scroll-mt-24 transition-all duration-1000 delay-[400ms] ${heroAnimationComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="flex flex-col gap-12">
             <div className="flex flex-col gap-6">
               <h2 className="text-white text-5xl font-black leading-tight tracking-tighter">
                 TECHNICAL<br />KERNEL
               </h2>
-              <p className="text-slate-400 text-base leading-relaxed max-w-2xl">
+              <p className="terminal-text text-slate-400 text-base leading-relaxed max-w-2xl">
                 Full-stack engineer specializing in mobile-first development, scalable backend systems, and AI-powered automations. I bridge the gap between low-level optimization and high-level user experience.
               </p>
             </div>
@@ -406,7 +538,7 @@ function App() {
         </div>
 
         {/* Contact Section */}
-        <div id="contact" className="mb-16 scroll-mt-24">
+        <div id="contact" className={`mb-16 scroll-mt-24 transition-all duration-1000 delay-[600ms] ${heroAnimationComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="border border-white/10 bg-white/[0.02] p-12 md:p-24 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 blur-[100px] -mr-48 -mt-48"></div>
 
@@ -418,7 +550,7 @@ function App() {
                 Let's build something <br />
                 <span className="text-white underline decoration-white/30 underline-offset-8">extraordinary.</span>
               </h2>
-              <p className="text-slate-400 text-lg mb-12 max-w-xl mx-auto">
+              <p className="terminal-text text-slate-400 text-lg mb-12 max-w-xl mx-auto">
                 Currently open for new opportunities and collaborations. Let's create something remarkable together.
               </p>
               <a
@@ -439,11 +571,11 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto border-t border-white/10 px-6 py-10 md:px-20 lg:px-40 bg-white/[0.02]">
+      <footer className={`mt-auto border-t border-white/10 px-6 py-10 md:px-20 lg:px-40 bg-white/[0.02] transition-all duration-1000 delay-[800ms] ${heroAnimationComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           <div className="terminal-text">
-            <p className="text-white font-bold text-sm">VINAYAK_SANKEET_v2.0.4</p>
-            <p className="text-slate-500 text-xs mt-1">© {new Date().getFullYear()} ALL RIGHTS RESERVED. KEEP_MOVING.</p>
+            <p className="terminal-text text-white font-bold text-sm">VINAYAK_SANKEET_v2.0.4</p>
+            <p className="terminal-text text-slate-500 text-xs mt-1">© {new Date().getFullYear()} ALL RIGHTS RESERVED. KEEP_MOVING.</p>
           </div>
           <div className="flex gap-8 terminal-text text-xs uppercase tracking-widest">
             <a className="text-slate-400 hover:text-white transition-colors" href="https://github.com/vinayaksankeet99/" target="_blank" rel="noopener noreferrer">GitHub</a>
